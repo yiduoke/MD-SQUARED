@@ -1,0 +1,22 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body>
+    Welcome back {{username}}!
+    <br>
+    <form action = "/search">
+      Search: 
+      <input type = "text" name="search">
+      <br>
+    </form>
+    {% if loggingOut %}
+    <form action = "/logout">
+      <input type = "submit" value = "logout">
+    </form>
+    { % endif % }
+  </body>
+
+</html>
