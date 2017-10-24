@@ -22,7 +22,7 @@ def search():
 
 @my_app.route("/newpost", methods = ['GET', 'POST'])
 def newPost():
-    pass
+    render_template('edit.html')
 
 @my_app.route("/edit",methods=['GET', 'POST'])
 def editPost():
