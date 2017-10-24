@@ -1,22 +1,33 @@
+{% extends "layout.html" %}
+{% block content %}
 
-<!DOCTYPE html>
-<html>
-  <head>
-    <title></title>
-  </head>
-  <body>
+    {% if loggedIn %}
     Welcome back {{username}}!
     <br>
+    {% endif %}
+
+    {% if loggingOut %}
+    <p> Logged out successfully! </p>
+    <br>
+    {% endif %}
+    
+    {% if error %}
+    <p> {{errorStatement}} </p>
+    <br>
+    {% endif %}
+
     <form action = "/search">
       Search: 
       <input type = "text" name="search">
+      <input type = "submit" value = "search"> 
       <br>
     </form>
+
+    
     {% if loggingOut %}
     <form action = "/logout">
       <input type = "submit" value = "logout">
     </form>
     { % endif % }
-  </body>
 
-</html>
+{% endblock %}
