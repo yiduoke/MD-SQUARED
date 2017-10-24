@@ -1,27 +1,42 @@
 {% extends "layout.html" %}
 {% block content %}
 
-    {% if loggedIn %}
-    Welcome back {{username}}!
-    <br>
-    {% endif %}
+{% if loggedIn %}
+{{username}}'s Blog!
+<br>
+<br>
 
-    {% if loggingOut %}
-    <p> Logged out successfully! </p>
-    <br>
-    {% endif %}
+<form action = "/newpost">
+  <input type = "submit" value = "New Post">
+</form> 
+<br>
+{{blogcontent}}
+<br>
+<form action = "/editpost">
+  <input type = "submit" value = "Edit Post">
+<form> 
+
+{% endif %}
+
+
+{% if loggingOut %}
+<p> Logged out successfully! </p>
+<br>
+
+{% endif %}
     
-    {% if error %}
-    <p> {{errorStatement}} </p>
-    <br>
-    {% endif %}
+{% if error %}
+<p> {{errorStatement}} </p>
+<br>
+{% endif %}
 
-    <form action = "/search">
-      Search: 
-      <input type = "text" name="search">
-      <input type = "submit" value = "search"> 
-      <br>
-    </form>
+
+<form action = "/search">
+  Search:
+  <input type = "text" name="search">
+  <input type = "submit" value = "search"> 
+  <br>
+</form>
 
     
     {% if loggingOut %}
