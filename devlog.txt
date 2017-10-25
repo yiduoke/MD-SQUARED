@@ -1,5 +1,5 @@
 10-25-17
-() Donia: 
+(2:02pm) Donia: linked the login page to the home page and made that template.  
 
 10-24-17
 (2:01pm) Donia: added templates for editing page/new post and added routes to blog.py

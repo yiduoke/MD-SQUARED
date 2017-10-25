@@ -17,8 +17,7 @@ def root():
 
 @my_app.route("/login", methods = ['GET', 'POST'])
 def login():
-    pass
-    
+    return render_template('login.html')
     
 
 @my_app.route("/search",methods = ['GET', 'POST'])
