@@ -5,9 +5,9 @@ f= "databases.db"
 db = sqlite3.connect(f)
 c = db.cursor()
 
-c.execute('CREATE TABLE IF NOT EXISTS creds(username TEXT, pass TEXT)')
-c.execute('CREATE TABLE IF NOT EXISTS userblog(username TEXT, blogname TEXT, id INTEGER)')
-c.execute('CREATE TABLE IF NOT EXISTS ;blog(entry TEXT, id INTEGER)')
+c.execute('CREATE TABLE IF NOT EXISTS creds(username TEXT, pass TEXT);')
+c.execute('CREATE TABLE IF NOT EXISTS userblog(username TEXT, blogname TEXT, id INTEGER);')
+c.execute('CREATE TABLE IF NOT EXISTS blog(entry TEXT, id INTEGER);')
 
 def updateCreds(user, passw):
     c.execute('INSERT INTO creds VALUES(?,?)', [user, passw])
