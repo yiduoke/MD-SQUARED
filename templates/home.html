@@ -1,7 +1,8 @@
 {% extends "layout.html" %}
 {% block content %}
 
-{get_flashed_messages()} 
+
+{# {get_flashed_messages()} 
 
 {% if loggedIn %}
 {{username}}'s Blog!
@@ -16,9 +17,7 @@
 <br>
 <form action = "/editpost">
   <input type = "submit" value = "Edit Post">
-<form> 
-  {% else %}
-  
+</form>
 {% endif %}
 
 
@@ -32,6 +31,10 @@
 <p> {{errorStatement}} </p>
 <br>
 {% endif %}
+#}
+
+
+<a href="login"> Login! </a>
 
 
 <form action = "/search">
@@ -41,11 +44,11 @@
   <br>
 </form>
 
-    
-    {% if loggingOut %}
+
+{# {% if loggingOut %}
     <form action = "/logout">
       <input type = "submit" value = "logout">
     </form>
-    { % endif % }
+    { % endif % } #}
 
 {% endblock %}
