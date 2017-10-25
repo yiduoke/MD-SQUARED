@@ -1,6 +1,8 @@
 {% extends "layout.html" %}
 {% block content %}
 
+{get_flashed_messages()} 
+
 {% if loggedIn %}
 {{username}}'s Blog!
 <br>
@@ -15,7 +17,8 @@
 <form action = "/editpost">
   <input type = "submit" value = "Edit Post">
 <form> 
-
+  {% else %}
+  
 {% endif %}
 
 
