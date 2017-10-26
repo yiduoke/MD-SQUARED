@@ -1,11 +1,11 @@
 yiduoK -- 10-25-17 22:35
 fixed a syntax errorl home page now works
 
-doniaTung -- 10-25-17 14:02
+doniaT -- 10-25-17 14:02
 linked the login page to the home page and made that template.  
 
-doniaTung -- 10-24-17 14:01
+doniaT -- 10-24-17 14:01
 added templates for editing page/new post and added routes to blog.py
 
-doniaTung -- 10-23-17 <time>
+doniaT -- 10-23-17 <time>
 added basic templates for create account, home, etc. and python file with different routes. 
