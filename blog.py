@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, session, redirect, url_for
+from utils import db
 import os
 
 my_app = Flask(__name__)
@@ -17,7 +18,16 @@ def root():
 @my_app.route("/login", methods = ['GET', 'POST'])
 def login():
     return render_template('login.html')
-    
+
+@my_app.route("/signup", methods = ['GET','POST'])
+def signup():
+    return render_template("newaccount.html")
+
+@my_app.route("/signedUp",methods = ["GET","POST"])
+def signedUp():
+    # the following line cause an error. idk why. but if you comment them out the page loads
+    db.updateCreds(request.form["username"], request.form["password"])
+    return render_template("home.html");
 
 @my_app.route("/search",methods = ['GET', 'POST'])
 def search():
