@@ -24,7 +24,11 @@ def checkLogin(user, passw):
     db = sqlite3.connect(f)
     c = db.cursor()
 
-    c.execute('SELECT EXISTS(SELECT 1 FROM creds WHERE username==? AND pass==? LIMIT 1);', [user, passw])
+    c.execute("SELECT name, mark FROM peeps, courses WHERE peeps.id=courses.id;")
+    bigList = c.fetchall()
+    dict = {}
+    for smallLists in bigList:
+        dict[smallList[0]] = smallList[1]
 
     db.commit()
     db.close()
