@@ -1,8 +1,11 @@
-10-25-17
-(2:02pm) Donia: linked the login page to the home page and made that template.  
+yiduoK -- 10-25-17 22:35
+fixed a syntax errorl home page now works
 
-10-24-17
-(2:01pm) Donia: added templates for editing page/new post and added routes to blog.py
+doniaTung -- 10-25-17 14:02
+linked the login page to the home page and made that template.  
 
-10-23-17
-Donia: added basic templates for create account, home, etc. and python file with different routes. 
+doniaTung -- 10-24-17 14:01
+added templates for editing page/new post and added routes to blog.py
+
+doniaTung -- 10-23-17 <time>
+added basic templates for create account, home, etc. and python file with different routes. 
