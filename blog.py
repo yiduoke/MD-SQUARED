@@ -4,16 +4,15 @@ import os
 my_app = Flask(__name__)
 my_app.secret_key = os.urandom(32)
 
-
 @my_app.route("/", methods = ['GET','POST'])
 def root():
-    # if (session.has_key["username"]):
-    #     session["login"] = True
-    #     session["username"] = request.form["username"]
-    #     session["password"] = request.form["password"]
-    #     return render_template ('home.html', username = session["username"], loggedIn = True, blogcontent = "something from the datatable")
-    # else:
-    return render_template ('home.html')
+    if (session.has_key("username")):
+        session["login"] = True
+        session["username"] = request.form["username"]
+        session["password"] = request.form["password"]
+        return render_template('home.html', username = session["username"], loggedIn = True, blogcontent = "something from the datatable")
+    else:
+        return render_template('home.html')
 
 @my_app.route("/login", methods = ['GET', 'POST'])
 def login():
