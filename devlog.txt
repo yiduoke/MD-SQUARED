@@ -1,3 +1,6 @@
+yiduoK -- 10-26/17 00:26
+tried to create new accounts by using sqlite3 commands from db.py from blog.py but getting errors
+
 yiduoK -- 10-25-17 22:35
 fixed a syntax errorl home page now works
 
