@@ -74,11 +74,18 @@ def root():
 
 @my_app.route("/login", methods = ['GET', 'POST'])
 def login():
-    
-    # session["login"] = True
-    # session["username"] = request.form["username"]
-    # session["password"] = request.form["password"]
-    return render_template('login.html')
+    if (checkLogin(request.form(["username"],request.form(["password"]))) == 0){# everything good
+        session["login"] = True
+        session["username"] = request.form["username"]
+        session["password"] = request.form["password"]
+        return render_template('login.html')
+    }
+    elif (checkLogin(request.form(["username"],request.form(["password"]))) == 1){#wrong password
+
+    }
+    else{#wrong username
+
+    }
 
 @my_app.route("/signup", methods = ['GET','POST'])
 def signup():
