@@ -1,17 +1,17 @@
-yiduoK -- 10-26/17 14:01
-fixed signup, did some of login
-
-yiduoK -- 10-26/17 00:26
-tried to create new accounts by using sqlite3 commands from db.py from blog.py but getting errors
-
-yiduoK -- 10-25-17 22:35
-fixed a syntax errorl home page now works
-
-doniaT -- 10-25-17 14:02
-linked the login page to the home page and made that template.  
+doniaT -- 10-23-17 <13:19>
+added basic templates for create account, home, etc. and python file with different routes. 
 
 doniaT -- 10-24-17 14:01
 added templates for editing page/new post and added routes to blog.py
 
-doniaT -- 10-23-17 <time>
-added basic templates for create account, home, etc. and python file with different routes. 
+yiduoK -- 10-25-17 22:35
+fixed a syntax errorl home page now works
+
+yiduoK -- 10-26/17 00:26
+tried to create new accounts by using sqlite3 commands from db.py from blog.py but getting errors
+
+yiduoK -- 10-26/17 14:01
+fixed signup, did some of login
+
+doniaT -- 10-25-17 14:02
+linked the login page to the home page and made that template.  
