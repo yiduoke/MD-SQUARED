@@ -29,6 +29,14 @@ def checkLogin(user, passw):
     dict = {}
     for smallLists in bigList:
         dict[smallList[0]] = smallList[1]
+    
+    if (dict.has_key(user)):
+        if (dict[user] == passw):
+            return 0; #everything correct
+        else:
+            return 1; #wrong password
+    else:
+        return 2; #wrong username
 
     db.commit()
     db.close()
