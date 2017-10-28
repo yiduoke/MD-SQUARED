@@ -1,17 +1,22 @@
 {% extends "layout.html" %}
 
-{% block content %}
+{% block body %}
+{% set messages=get_flashed_messages() %}
+{% for message in messages %}
+{{message}}
+{% endfor %}
 
-    Create an Account: 
-    <form method="POST" action="signedUp">
-      Username:
-      <br>
-      <input type="text" name="username">
-      <br>
-      Password:
-      <br>
-      <input type="password" name="password">
-      <br>
-      <input type="submit" value="Submit">
-    </form>    
+Create an Account: 
+<form method="POST" action="signedUp">
+  Username:
+  <br>
+  <input type="text" name="username" required>
+  <br>
+  Password:
+  <br>
+  <input type="password" name="password" required>
+  <br>
+  <input type="submit" value="Submit">
+</form>
+
 {% endblock %}

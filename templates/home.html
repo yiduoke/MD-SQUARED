@@ -1,43 +1,40 @@
 {% extends "layout.html" %}
-{% block content %}
 
+{% block body %}
 
-{# {get_flashed_messages()} 
+{% set messages=get_flashed_messages() %}
+{% for message in messages %}
+{{message}}
+{% endfor %}
+<br>
 
 {% if loggedIn %}
-{{username}}'s Blog!
+Welcome {{username}}
 <br>
 <br>
-
-<form action = "/newpost">
+<form method="POST" action = "/newpost">
   <input type = "submit" value = "New Post">
 </form> 
-<br>
-{{blogcontent}}
-<br>
-<form action = "/editpost">
+<form method="POST" action = "/editpost">
   <input type = "submit" value = "Edit Post">
 </form>
 {% endif %}
-
 
 {% if loggingOut %}
 <p> Logged out successfully! </p>
 <br>
 
 {% endif %}
-    
-{% if error %}
-<p> {{errorStatement}} </p>
-<br>
-{% endif %}
-#}
 
-
+{% if not loggedIn %}
 <a href="login"> Login! </a>
 <br>
 <a href="signup">Sign Up!</a>
-
+{% else %}
+<form method="POST" action = "/logout">
+  <input type = "submit" value = "Logout">
+</form>
+{% endif %}
 
 <form action = "/search">
   Search:
@@ -45,12 +42,4 @@
   <input type = "submit" value = "search"> 
   <br>
 </form>
-
-<!--{# {% if loggingOut %}
-<form action = "/logout">
-  <input type = "submit" value = "logout">
-</form>
-{ % endif % } #}
--->
-
 {% endblock %}

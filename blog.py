@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, render_template, request, session, redirect, url_for, flash
 import sqlite3
 import os
 
@@ -8,30 +8,41 @@ db = sqlite3.connect(f)
 c = db.cursor()
 
 c.execute('CREATE TABLE IF NOT EXISTS creds(username TEXT, pass TEXT);')
-c.execute('CREATE TABLE IF NOT EXISTS userblog(username TEXT, blogname TEXT, id INTEGER);')
-c.execute('CREATE TABLE IF NOT EXISTS blog(entry TEXT, id INTEGER);')
+c.execute('CREATE TABLE IF NOT EXISTS blogs(username TEXT, blogname TEXT, id INTEGER);')
+c.execute('CREATE TABLE IF NOT EXISTS entries(entry TEXT, id INTEGER);')
 
-def updateCreds(user, passw):
+def addUser(username, password):
     db = sqlite3.connect(f)
     c = db.cursor()
 
-    c.execute('INSERT INTO creds VALUES(?,?)', [user, passw])
-
-    db.commit()
-    db.close()
-
-def checkLogin(user, passw):
-    db = sqlite3.connect(f)
-    c = db.cursor()
-
-    c.execute("SELECT name, mark FROM peeps, courses WHERE peeps.id=courses.id;")
+    c.execute("SELECT * FROM creds;")
     bigList = c.fetchall()
     dict = {}
     for smallLists in bigList:
-        dict[smallList[0]] = smallList[1]
+        dict[smallLists[0]] = smallLists[1]
+
+    if (username in dict):
+        return 0 #username already exists
+    else:
+        c.execute('INSERT INTO creds VALUES(?, ?);', [username, password])
+        c.execute('select count(*) from creds;')
+        c.execute('INSERT INTO blogs VALUES(?, ?, ?);', [username, c.fetchall()[0][0]-1, "%s's Blog" %(username)])
+        db.commit()
+        db.close()
+        return 1 #successful signup
+
+def checkLogin(username, password):
+    db = sqlite3.connect(f)
+    c = db.cursor()
+
+    c.execute("SELECT * FROM creds;")
+    bigList = c.fetchall()
+    dict = {}
+    for smallLists in bigList:
+        dict[smallLists[0]] = smallLists[1]
     
-    if (dict.has_key(user)):
-        if (dict[user] == passw):
+    if (username in dict):
+        if (dict[username] == password):
             return 0; #everything correct
         else:
             return 1; #wrong password
@@ -41,22 +52,20 @@ def checkLogin(user, passw):
     db.commit()
     db.close()
 
-blogUpdater = 'UPDATE blog SET entry += %s WHERE id = %s'
-
-def updateBlog(newEntry, idEntry):
+def updateEntries(id, entry):
     db = sqlite3.connect(f)
     c = db.cursor()
 
-    c.execute(blogUpdater % (newEntry, idEntry))
+    c.execute('INSERT INTO entries VALUES (?, ?);'%(id, entry))#shouldn't just be insert -- we have to enable updating too (I think)
 
     db.commit()
     db.close()
 
-def updateUserBlog(user, name, idEntry):
+def updateBlog(username, blogName, id):
     db = sqlite3.connect(f)
     c = db.cursor()
 
-    c.execute('INSERT INTO userblog VALUES(?,?,?)' [user, name, idEntry])
+    c.execute('INSERT INTO blogs VALUES(?, ?, ?);' [user, name, id])
     
     db.commit()
     db.close()
@@ -67,25 +76,30 @@ my_app.secret_key = os.urandom(32)
 
 @my_app.route("/", methods = ['GET','POST'])
 def root():
-    if (session.has_key("username")):
-        return render_template('home.html', username = session["username"], loggedIn = True, blogcontent = "something from the datatable")
+    if ("username" in session):
+        return render_template('home.html', username = session["username"], loggedIn = True)
     else:
-        return render_template('home.html')
+        return render_template('home.html', username = "guest", loggedIn=False)
 
-@my_app.route("/login", methods = ['GET', 'POST'])
+@my_app.route("/login",methods = ['GET', 'POST'])
 def login():
-    if (checkLogin(request.form(["username"],request.form(["password"]))) == 0){# everything good
+    return render_template('login.html')
+
+@my_app.route("/auth", methods = ["GET","POST"])
+def auth():
+    error = checkLogin(request.form["username"], request.form["password"])
+    if (error == 0):# everything good
         session["login"] = True
         session["username"] = request.form["username"]
         session["password"] = request.form["password"]
-        return render_template('login.html')
-    }
-    elif (checkLogin(request.form(["username"],request.form(["password"]))) == 1){#wrong password
-
-    }
-    else{#wrong username
-
-    }
+        flash("yay you're in!")
+        return redirect(url_for('root'))
+    elif (error == 1):#wrong password
+        flash("wrong password")
+        return redirect(url_for('root'))
+    else:#wrong username
+        flash("wrong username")
+        return redirect(url_for('root'))
 
 @my_app.route("/signup", methods = ['GET','POST'])
 def signup():
@@ -93,9 +107,13 @@ def signup():
 
 @my_app.route("/signedUp",methods = ["GET","POST"])
 def signedUp():
-    # the following line cause an error. idk why. but if you comment them out the page loads
-    updateCreds(request.form["username"], request.form["password"])
-    return render_template("home.html");
+    error = addUser(request.form["username"], request.form["password"])
+    if error == 0:
+        flash("username already exists")
+        return redirect(url_for("signup"))
+    else:
+        flash("signup successful")
+        return redirect(url_for("login"))
 
 @my_app.route("/search",methods = ['GET', 'POST'])
 def search():
@@ -111,9 +129,8 @@ def editPost():
 
 @my_app.route("/logout", methods = ['GET', 'POST'])
 def logout():
-    session.clear()
-    #removes all the session details
-    return render_template('home.html', loggingOut = True)
+    session.clear() #removes all the session details
+    return redirect(url_for("root"))
 
 if __name__ == '__main__':
     my_app.debug = True
