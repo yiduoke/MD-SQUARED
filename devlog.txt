@@ -18,3 +18,6 @@ tried to create new accounts by using sqlite3 commands from db.py from blog.py b
 
 yiduoK -- 10-26/17 14:01
 fixed signup, did some of login 
+
+doniaT -- 10-28-17 11:17
+finished login/logout/signup system
