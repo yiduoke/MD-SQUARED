@@ -7,26 +7,30 @@ f = "databases.db"
 db = sqlite3.connect(f)
 c = db.cursor()
 
-c.execute('CREATE TABLE IF NOT EXISTS creds(username TEXT, pass TEXT);')
-c.execute('CREATE TABLE IF NOT EXISTS blogs(username TEXT, blogname TEXT, id INTEGER);')
-c.execute('CREATE TABLE IF NOT EXISTS entries(entry TEXT, id INTEGER);')
+def makeTables():
+    db = sqlite3.connect("databases.db")
+    c = db.cursor()
+    c.execute('CREATE TABLE IF NOT EXISTS credentials(username TEXT, password TEXT);')
+    c.execute('CREATE TABLE IF NOT EXISTS blogs(username TEXT, blog_name TEXT);')
+    c.execute('CREATE TABLE IF NOT EXISTS entries(username TEXT, entry TEXT);')
+
+    db.commit()
+    db.close()
+
+makeTables()
 
 def addUser(username, password):
-    db = sqlite3.connect(f)
+    db = sqlite3.connect("databases.db")
     c = db.cursor()
 
-    c.execute("SELECT * FROM creds;")
-    bigList = c.fetchall()
-    dict = {}
-    for smallLists in bigList:
-        dict[smallLists[0]] = smallLists[1]
+    usernames = getUsernames()
 
-    if (username in dict):
+    if (username in usernames):
         return 0 #username already exists
     else:
-        c.execute('INSERT INTO creds VALUES(?, ?);', [username, password])
-        c.execute('select count(*) from creds;')
-        c.execute('INSERT INTO blogs VALUES(?, ?, ?);', [username, c.fetchall()[0][0]-1, "%s's Blog" %(username)])
+        c.execute('INSERT INTO credentials VALUES(?, ?);', [username, password])
+        c.execute('select count(*) from credentials;')
+        c.execute('INSERT INTO blogs VALUES(?, ?);', [username, "%s's Blog" %(username)])
         db.commit()
         db.close()
         return 1 #successful signup
@@ -40,7 +44,7 @@ def checkLogin(username, password):
     dict = {}
     for smallLists in bigList:
         dict[smallLists[0]] = smallLists[1]
-    
+
     if (username in dict):
         if (dict[username] == password):
             return 0; #everything correct
@@ -52,11 +56,24 @@ def checkLogin(username, password):
     db.commit()
     db.close()
 
-def updateEntries(id, entry):
-    db = sqlite3.connect(f)
+def updateEntries(username, entry):
+    db = sqlite3.connect("databases.db")
     c = db.cursor()
 
-    c.execute('INSERT INTO entries VALUES (?, ?);'%(id, entry))#shouldn't just be insert -- we have to enable updating too (I think)
+    c.execute('INSERT INTO entries VALUES (?, ?);', [username, entry])#shouldn't just be insert -- we have to enable updating too (I think)
+
+    db.commit()
+    db.close()
+
+def editEntries(username, index, newEntry):
+    db = sqlite3.connect("databases.db")
+    c = db.cursor()
+
+    newIndex=int(index)
+    bigList=getEntries(username)
+    oldEntry=bigList[newIndex]
+
+    c.execute('UPDATE entries SET entry = "%s" WHERE entry = "%s" AND username = "%s";' %(newEntry,oldEntry,username))
 
     db.commit()
     db.close()
@@ -66,7 +83,7 @@ def updateBlog(username, blogName, id):
     c = db.cursor()
 
     c.execute('INSERT INTO blogs VALUES(?, ?, ?);' [user, name, id])
-    
+
     db.commit()
     db.close()
 #---------------------------------------------------------------------------------------------------------------------
