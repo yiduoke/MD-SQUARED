@@ -8,8 +8,8 @@ def makeTables():
     db = sqlite3.connect("databases.db")
     c = db.cursor()
     c.execute('CREATE TABLE IF NOT EXISTS credentials(username TEXT, password TEXT);')
-    c.execute('CREATE TABLE IF NOT EXISTS blogs(username TEXT, blog_name TEXT, id INTEGER);')
-    c.execute('CREATE TABLE IF NOT EXISTS entries(entry TEXT, id INTEGER);')
+    c.execute('CREATE TABLE IF NOT EXISTS blogs(username TEXT, blog_name TEXT);')
+    c.execute('CREATE TABLE IF NOT EXISTS entries(username TEXT, entry TEXT);')
 
     db.commit()
     db.close()
@@ -22,24 +22,24 @@ def getUsernames():
     c.execute("SELECT * FROM credentials;")
 
     bigList = c.fetchall()
-    dict = {}
+    usernames = {}
     for smallList in bigList:
-        dict[smallList[0]] = smallList[1]
+        usernames[smallList[0]] = smallList[1]
 
-    return dict
-
+    return usernames
+        
 def addUser(username, password):
     db = sqlite3.connect("databases.db")
     c = db.cursor()
-
+    
     usernames = getUsernames()
-
+    
     if (username in usernames):
         return 0 #username already exists
     else:
         c.execute('INSERT INTO credentials VALUES(?, ?);', [username, password])
         c.execute('select count(*) from credentials;')
-        c.execute('INSERT INTO blogs VALUES(?, ?, ?);', [username, c.fetchall()[0][0]-1, "%s's Blog" %(username)])
+        c.execute('INSERT INTO blogs VALUES(?, ?);', [username, "%s's Blog" %(username)])
         db.commit()
         db.close()
         return 1 #successful signup
@@ -49,7 +49,7 @@ def checkLogin(username, password):
     c = db.cursor()
 
     usernames = getUsernames()
-
+    
     if (username in usernames):
         if (usernames[username] == password):
             return 0; #everything correct
@@ -58,21 +58,39 @@ def checkLogin(username, password):
     else:
         return 2; #wrong username
 
-def updateEntries(id, entry):
+def getEntries(username):
     db = sqlite3.connect("databases.db")
     c = db.cursor()
 
-    c.execute('INSERT INTO entries VALUES (?, ?);'%(id, entry))#shouldn't just be insert -- we have to enable updating too (I think)
+    c.execute('SELECT entry FROM entries WHERE username == ?;'[username])
+    bigList = c.fetchall()
+    output = []
+    for smallList in bigList:
+        output.append(smallList[0])
+
+    db.commit()
+    db.close()
+    return output
+
+def updateEntries(username, entry):
+    db = sqlite3.connect("databases.db")
+    c = db.cursor()
+
+    c.execute('INSERT INTO entries VALUES (?, ?);', [username, entry])#shouldn't just be insert -- we have to enable updating too (I think)
 
     db.commit()
     db.close()
 
-def updateBlogs(username, blogName, id):
+def editEntries(username, index, newEntry):
     db = sqlite3.connect("databases.db")
     c = db.cursor()
 
-    c.execute('INSERT INTO blogs VALUES(?, ?, ?);' [user, name, id])
+    newIndex=int(index)
+    bigList=getEntries(username)
+    oldEntry=bigList[newIndex]
 
+    c.execute('UPDATE entries SET entry = "%s" WHERE entry = "%s" AND username = "%s";' %(newEntry,oldEntry,username))
+    
     db.commit()
     db.close()
 
@@ -82,20 +100,32 @@ def getBlogs():
     c.execute("SELECT * FROM blogs;")
 
     bigList = c.fetchall()
-    dict = {}
+    blogs = {}
     for smallList in bigList:
-        dict[smallList[0]] = smallList[1]
+        blogs[smallList[0]] = smallList[1]
 
-    return dict
+    return blogs
+
+def getEntries(username):
+    db = sqlite3.connect("databases.db")
+    c = db.cursor()
+    c.execute("SELECT * FROM entries WHERE username = ?;", [username])
+
+    bigList = c.fetchall()
+    entries = []
+    for smallList in bigList:
+        entries.append(smallList[1])
+
+    return entries
 
 #------------------------------------------------------------------------------------------------------------------------------------------
 
 @my_app.route("/", methods = ['GET','POST'])
 def root():
     if ("username" in session):
-        return render_template('home.html', username = session["username"], loggedIn = True)
+        return render_template('home.html', username = session["username"], loggedIn = True, blogs = getBlogs())
     else:
-        return render_template('home.html', username = "guest", loggedIn=False)
+        return render_template('home.html', username = "guest", loggedIn=False, blogs = getBlogs())
 
 @my_app.route("/login",methods = ['GET', 'POST'])
 def login():
@@ -121,7 +151,7 @@ def auth():
 def signup():
     return render_template("newaccount.html")
 
-@my_app.route("/signedUp",methods = ["GET","POST"])
+@my_app.route("/signedUp", methods = ["GET","POST"])
 def signedUp():
     error = addUser(request.form["username"], request.form["password"])
     if error == 0:
@@ -135,22 +165,29 @@ def signedUp():
 def search():
     pass
 
-@my_app.route("/newpost", methods = ['GET', 'POST'])
+@my_app.route("/newEntry", methods = ['GET', 'POST'])
 def newPost():
-    render_template('edit.html')
+    updateEntries(session["username"], request.form["entry"])
+    return redirect(url_for("blog", username = session["username"]))
 
-@my_app.route("/edit",methods=['GET', 'POST'])
-def editPost():
-    render_template('edit.html', origtitle ='fromdatabase', origcontent = 'fromdatabase')
+@my_app.route("/editEntry<index>", methods = ['GET', 'POST'])
+def editEntry(index):
+    editEntries(session["username"], index, request.form["entry"])
+    return redirect(url_for("blog", username = session["username"]))
 
 @my_app.route("/logout", methods = ['GET', 'POST'])
 def logout():
     session.clear() #removes all the session details
     return redirect(url_for("root"))
 
-@my_app.route("/blogs/<username>", methods = ['GET', 'POST'])
+#Fix this so you can't just enter /something in url and get a page
+@my_app.route("/<username>", methods = ['GET', 'POST'])
 def blog(username):
-    return render_template("blog_template.html", username = username, entries = ["entry1", "entry2", "entry3"])
+    if ("username" in session and session["username"]==username):
+        ownBlog1=True;
+    else:
+        ownBlog1=False;
+    return render_template("blog_template.html", username = username, entries = getEntries(username),ownBlog=ownBlog1)
 
 if __name__ == '__main__':
     my_app.debug = True
