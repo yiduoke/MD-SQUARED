@@ -5,25 +5,14 @@
 {% set messages=get_flashed_messages() %}
 {% for message in messages %}
 {{message}}
-{% endfor %}
 <br>
+{% endfor %}
 
 {% if loggedIn %}
 Welcome {{username}}
 <br>
+<a href="/{{username}}"> My Blog </a>
 <br>
-<form method="POST" action = "/newpost">
-  <input type = "submit" value = "New Post">
-</form> 
-<form method="POST" action = "/editpost">
-  <input type = "submit" value = "Edit Post">
-</form>
-{% endif %}
-
-{% if loggingOut %}
-<p> Logged out successfully! </p>
-<br>
-
 {% endif %}
 
 {% if not loggedIn %}
@@ -36,10 +25,18 @@ Welcome {{username}}
 </form>
 {% endif %}
 
-<form action = "/search">
+<form method="POST" action = "/search">
   Search:
   <input type = "text" name="search">
   <input type = "submit" value = "search"> 
   <br>
 </form>
+
+All Blogs:
+<br>
+{% for username, blog_name in blogs.items() %}
+<a href="/{{username}}">{{blog_name}}</a>
+<br>
+{% endfor %}
+
 {% endblock %}
