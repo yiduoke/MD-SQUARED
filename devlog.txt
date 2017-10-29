@@ -24,3 +24,6 @@ finished login/logout/signup system
 
 davidD -- 10-29-17 10:55
 restructured database, added table modification functions
+
+mdA -- 10-29-17 13:53
+added data parsing functions

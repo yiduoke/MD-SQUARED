@@ -19,6 +19,18 @@ def makeTables():
 
 makeTables()
 
+def getUsernames():
+    db = sqlite3.connect("databases.db")
+    c = db.cursor()
+    c.execute("SELECT * FROM credentials;")
+
+    bigList = c.fetchall()
+    usernames = {}
+    for smallList in bigList:
+        usernames[smallList[0]] = smallList[1]
+
+    return usernames
+
 def addUser(username, password):
     db = sqlite3.connect("databases.db")
     c = db.cursor()
@@ -86,6 +98,31 @@ def updateBlog(username, blogName, id):
 
     db.commit()
     db.close()
+
+    def getBlogs():
+    db = sqlite3.connect("databases.db")
+    c = db.cursor()
+    c.execute("SELECT * FROM blogs;")
+
+    bigList = c.fetchall()
+    blogs = {}
+    for smallList in bigList:
+        blogs[smallList[0]] = smallList[1]
+
+    return blogs
+
+def getEntries(username):
+    db = sqlite3.connect("databases.db")
+    c = db.cursor()
+    c.execute("SELECT * FROM entries WHERE username = ?;", [username])
+
+    bigList = c.fetchall()
+    entries = []
+    for smallList in bigList:
+        entries.append(smallList[1])
+
+    return entries
+
 #---------------------------------------------------------------------------------------------------------------------
 
 my_app = Flask(__name__)
