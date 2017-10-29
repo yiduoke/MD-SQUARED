@@ -30,3 +30,6 @@ added data parsing functions
 
 davidD -- 10-29-17 14:16
 fixed add entries feature
+
+mdA -- 10-29-17 13:53
+upated design doc
