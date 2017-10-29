@@ -33,3 +33,6 @@ fixed add entries feature
 
 mdA -- 10-29-17 13:53
 upated design doc
+
+doniaT -- 10-29-17 16:18
+updated html files to show blogs correctly based on the logged in account, shows entries and buttons correctly now
