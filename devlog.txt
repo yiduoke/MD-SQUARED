@@ -21,3 +21,6 @@ fixed signup, did some of login
 
 doniaT -- 10-28-17 11:17
 finished login/logout/signup system
+
+davidD -- 10-29-17 10:55
+restructured database, added table modification functions
