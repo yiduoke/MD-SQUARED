@@ -1,18 +1,15 @@
 from flask import Flask, render_template, request, session, redirect, url_for, flash
-import sqlite3
-import os
+import sqlite3, os
 
-f = "databases.db"
-
-db = sqlite3.connect(f)
-c = db.cursor()
+my_app = Flask(__name__)
+my_app.secret_key = os.urandom(32)
 
 def makeTables():
     db = sqlite3.connect("databases.db")
     c = db.cursor()
     c.execute('CREATE TABLE IF NOT EXISTS credentials(username TEXT, password TEXT);')
-    c.execute('CREATE TABLE IF NOT EXISTS blogs(username TEXT, blog_name TEXT);')
-    c.execute('CREATE TABLE IF NOT EXISTS entries(username TEXT, entry TEXT);')
+    c.execute('CREATE TABLE IF NOT EXISTS blogs(username TEXT, blog_name TEXT, id INTEGER);')
+    c.execute('CREATE TABLE IF NOT EXISTS entries(entry TEXT, id INTEGER);')
 
     db.commit()
     db.close()
@@ -25,11 +22,11 @@ def getUsernames():
     c.execute("SELECT * FROM credentials;")
 
     bigList = c.fetchall()
-    usernames = {}
+    dict = {}
     for smallList in bigList:
-        usernames[smallList[0]] = smallList[1]
+        dict[smallList[0]] = smallList[1]
 
-    return usernames
+    return dict
 
 def addUser(username, password):
     db = sqlite3.connect("databases.db")
@@ -42,56 +39,36 @@ def addUser(username, password):
     else:
         c.execute('INSERT INTO credentials VALUES(?, ?);', [username, password])
         c.execute('select count(*) from credentials;')
-        c.execute('INSERT INTO blogs VALUES(?, ?);', [username, "%s's Blog" %(username)])
+        c.execute('INSERT INTO blogs VALUES(?, ?, ?);', [username, c.fetchall()[0][0]-1, "%s's Blog" %(username)])
         db.commit()
         db.close()
         return 1 #successful signup
 
 def checkLogin(username, password):
-    db = sqlite3.connect(f)
+    db = sqlite3.connect("databases.db")
     c = db.cursor()
 
-    c.execute("SELECT * FROM creds;")
-    bigList = c.fetchall()
-    dict = {}
-    for smallLists in bigList:
-        dict[smallLists[0]] = smallLists[1]
+    usernames = getUsernames()
 
-    if (username in dict):
-        if (dict[username] == password):
+    if (username in usernames):
+        if (usernames[username] == password):
             return 0; #everything correct
         else:
             return 1; #wrong password
     else:
         return 2; #wrong username
 
-    db.commit()
-    db.close()
-
-def updateEntries(username, entry):
+def updateEntries(id, entry):
     db = sqlite3.connect("databases.db")
     c = db.cursor()
 
-    c.execute('INSERT INTO entries VALUES (?, ?);', [username, entry])#shouldn't just be insert -- we have to enable updating too (I think)
+    c.execute('INSERT INTO entries VALUES (?, ?);'%(id, entry))#shouldn't just be insert -- we have to enable updating too (I think)
 
     db.commit()
     db.close()
 
-def editEntries(username, index, newEntry):
+def updateBlogs(username, blogName, id):
     db = sqlite3.connect("databases.db")
-    c = db.cursor()
-
-    newIndex=int(index)
-    bigList=getEntries(username)
-    oldEntry=bigList[newIndex]
-
-    c.execute('UPDATE entries SET entry = "%s" WHERE entry = "%s" AND username = "%s";' %(newEntry,oldEntry,username))
-
-    db.commit()
-    db.close()
-
-def updateBlog(username, blogName, id):
-    db = sqlite3.connect(f)
     c = db.cursor()
 
     c.execute('INSERT INTO blogs VALUES(?, ?, ?);' [user, name, id])
@@ -99,34 +76,19 @@ def updateBlog(username, blogName, id):
     db.commit()
     db.close()
 
-    def getBlogs():
+def getBlogs():
     db = sqlite3.connect("databases.db")
     c = db.cursor()
     c.execute("SELECT * FROM blogs;")
 
     bigList = c.fetchall()
-    blogs = {}
+    dict = {}
     for smallList in bigList:
-        blogs[smallList[0]] = smallList[1]
+        dict[smallList[0]] = smallList[1]
 
-    return blogs
+    return dict
 
-def getEntries(username):
-    db = sqlite3.connect("databases.db")
-    c = db.cursor()
-    c.execute("SELECT * FROM entries WHERE username = ?;", [username])
-
-    bigList = c.fetchall()
-    entries = []
-    for smallList in bigList:
-        entries.append(smallList[1])
-
-    return entries
-
-#---------------------------------------------------------------------------------------------------------------------
-
-my_app = Flask(__name__)
-my_app.secret_key = os.urandom(32)
+#------------------------------------------------------------------------------------------------------------------------------------------
 
 @my_app.route("/", methods = ['GET','POST'])
 def root():
@@ -186,11 +148,10 @@ def logout():
     session.clear() #removes all the session details
     return redirect(url_for("root"))
 
+@my_app.route("/blogs/<username>", methods = ['GET', 'POST'])
+def blog(username):
+    return render_template("blog_template.html", username = username, entries = ["entry1", "entry2", "entry3"])
+
 if __name__ == '__main__':
     my_app.debug = True
     my_app.run()
-
-#------------------------------------------------------------------------------------------------------------------
-
-db.commit()
-db.close()
