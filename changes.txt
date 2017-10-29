@@ -1,0 +1,5 @@
+-blogs and entries tables no longer have id field because usernames are unique, thus making IDs useless
+-passwords are not hashed
+-signup page (jinja)
+
+
