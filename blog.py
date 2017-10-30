@@ -1,7 +1,3 @@
-#To Do:
-# Update changes.txt and design doc
-# Delete branches
-
 from flask import Flask, render_template, request, session, redirect, url_for, flash
 import sqlite3, os
 
