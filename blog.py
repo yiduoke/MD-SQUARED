@@ -58,20 +58,6 @@ def checkLogin(username, password):
     else:
         return 2; #wrong username
 
-def getEntries(username):
-    db = sqlite3.connect("databases.db")
-    c = db.cursor()
-
-    c.execute('SELECT entry FROM entries WHERE username == ?;'[username])
-    bigList = c.fetchall()
-    output = []
-    for smallList in bigList:
-        output.append(smallList[0])
-
-    db.commit()
-    db.close()
-    return output
-
 def updateEntries(username, entry):
     db = sqlite3.connect("databases.db")
     c = db.cursor()

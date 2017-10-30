@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      {{username}}'s Blog
+    </title>
+  </head>
+  <body>
+    {% for entry in entries %}
+    {{entry}}
+    <br>
+    {% endfor %}
+  </body>
+</html>
