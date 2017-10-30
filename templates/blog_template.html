@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      {{username}}'s Blog
+    </title>
+  </head>
+  <body>
+    <h1>{{username}}'s Blog</h1>
+    <br>
+    {% if ownBlog %}
+      <form method="POST" action="newEntry">
+        New Entry:
+        <br>
+        <input type="text" name="entry" required>
+        <br>
+        <input type="submit" value="Submit">
+      </form>
+    {% endif %}
+    <br>
+    
+    {% for entry in entries %}
+      {{entry}}
+      {% if ownBlog %}
+      <form method="POST" action="editEntry{{ loop.index0 }}">
+        Edit Entry:
+        <br>
+        <input type="text" name="entry" required>
+        <br>
+        <input type="submit" value="Submit">
+      </form>
+    {% endif %}
+    <br>
+    {% endfor %}
+  </body>
+</html>
