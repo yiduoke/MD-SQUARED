@@ -1,0 +1,1 @@
+There is a login system and a signup system. Only logged in members can edit their own blogs.
