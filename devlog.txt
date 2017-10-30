@@ -42,3 +42,6 @@ finished editing entries feature; cleaned up code
 
 mdA -- 10-30-17 02:34
 finished search function and results displaying
+
+mdA -- 10-30-17 05:33
+optimized code, commented code, added error catching pages, beautified website, and added more navigation buttons
