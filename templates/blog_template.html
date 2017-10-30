@@ -1,36 +1,60 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>
-      {{username}}'s Blog
-    </title>
-  </head>
-  <body>
-    <h1>{{username}}'s Blog</h1>
+{% extends "layout.html" %}
+
+{% block title %} {{username}}'s Blog {% endblock %}
+
+{% block body %}
+<div style="font-weight:bold" align = "center">
+  {% set messages = get_flashed_messages() %}
+  {% for message in messages %}
+  {{message}}
+  {% endfor %}
+  <br>
+</div>
+
+<div align = "left">
+  <form method="POST" action = "/">
+    <input type = "submit" value = "Home">
+  </form>
+</div>
+
+{% if loggedIn %}
+<div align="right">
+  <form method="POST" action = "/logout">
+    <input type = "submit" value = "Logout">
+  </form>
+  <br>
+</div>
+{% endif %}
+
+<h1 align = "center">{{username}}'s Blog</h1>
+<br>
+
+<div align="center">
+  {% if ownBlog %}
+  <form method="POST" action="/newEntry">
+    New Entry:
     <br>
-    {% if ownBlog %}
-      <form method="POST" action="newEntry">
-        New Entry:
-        <br>
-        <input type="text" name="entry" required>
-        <br>
-        <input type="submit" value="Submit">
-      </form>
-    {% endif %}
+    <input type="text" name="entry" required>
     <br>
-    
-    {% for entry in entries %}
-      {{entry}}
-      {% if ownBlog %}
-      <form method="POST" action="editEntry{{ loop.index0 }}">
-        Edit Entry:
-        <br>
-        <input type="text" name="entry" required>
-        <br>
-        <input type="submit" value="Submit">
-      </form>
-    {% endif %}
+    <input type="submit" value="Submit">
+  </form>
+  {% endif %}
+  <br>
+  
+  {% for entry in entries %}
+  {{entry}}
+  {% if ownBlog %}
+  <form method="POST" action="/editEntry{{ loop.index0 }}">
+    Edit Entry:
     <br>
-    {% endfor %}
-  </body>
-</html>
+    <input type="text" name="entry" required>
+    <br>
+    <input type="submit" value="Submit">
+  </form>
+  {% endif %}
+  <br>
+  <br>
+  {% endfor %}
+</div>
+
+{% endblock %}

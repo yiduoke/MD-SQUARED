@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+
+{% block title %} Home: MD^2 Blog Website {% endblock %}
+
+{% block body %}
+
+{% set messages = get_flashed_messages() %}
+{% for message in messages %}
+{{message}}
+{% endfor %}
+<br>
+
+{% if loggedIn %}
+Welcome, {{username}}!
+<br>
+<a href="/{{username}}"> My Blog </a>
+<br>
+<form method="POST" action = "/logout">
+  <input type = "submit" value = "Logout">
+</form>
+<br>
+{% else %}
+Welcome, guest!
+<br>
+<a href="login"> Login! </a>
+<br>
+<a href="signup"> Sign Up! </a>
+<br>
+{% endif %}
+<br>
+
+<form method = "POST" action = "/search">
+  Search:
+  <input type = "text" name = "query">
+  <input type = "submit" value = "Submit"> 
+  <br>
+</form>
+
+{% for result in searchResults %}
+<a href = "{{result[0]}}"> {{result[0]}}: {{result[1]}} </a>
+<br>
+{% endfor %}
+<br>
+
+All Blogs:
+<br>
+{% for username, blog_name in blogs.items() %}
+<a href = "/{{username}}"> {{blog_name}} </a>
+<br>
+{% endfor %}
+
+{% endblock %}

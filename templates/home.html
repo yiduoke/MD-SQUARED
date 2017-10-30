@@ -1,46 +1,66 @@
 {% extends "layout.html" %}
 
+{% block title %} Home: MD^2 Blog Website {% endblock %}
+
 {% block body %}
 
-{% set messages=get_flashed_messages() %}
-{% for message in messages %}
-{{message}}
-{% endfor %}
-<br>
+<div style="font-weight:bold" align = "center">
+  {% set messages = get_flashed_messages() %}
+  {% for message in messages %}
+  {{message}}
+  {% endfor %}
+  <br>
+</div>
 
 {% if loggedIn %}
-Welcome {{username}}
+<div align="right">
+  <form method="POST" action = "/logout">
+    <input type = "submit" value = "Logout">
+  </form>
+</div>
+<br>
+
+<h1 align = "center"> MD^2 Blog Website </h1>
+
+Welcome, {{username}}!
 <br>
 <a href="/{{username}}"> My Blog </a>
 <br>
-{% endif %}
 
-{% if not loggedIn %}
+{% else %}
+<h1 align = "center"> MD^2 Blog Website </h1>
+
+Welcome, guest!
+<br>
 <a href="login"> Login! </a>
 <br>
-<a href="signup">Sign Up!</a>
-{% else %}
-<form method="POST" action = "/logout">
-  <input type = "submit" value = "Logout">
-</form>
+<a href="signup"> Sign Up! </a>
+<br>
 {% endif %}
+<br>
 
 <form method = "POST" action = "/search">
   Search:
-  <input type = "text" name="query">
+  <input type = "text" name = "query" required>
   <input type = "submit" value = "Submit"> 
   <br>
 </form>
 
+{% if searchResults|length > 0 %}
+<br>
+Search Results:
+<br>
+{% endif %}
 {% for result in searchResults %}
-<a href="{{result[0]}}">{{result[0]}}: {{result[1]}}</a>
+<a href = "{{result[0]}}"> {{result[0]}}: {{result[1]}} </a>
 <br>
 {% endfor %}
+<br>
 
 All Blogs:
 <br>
 {% for username, blog_name in blogs.items() %}
-<a href="/{{username}}">{{blog_name}}</a>
+<a href = "/{{username}}"> {{blog_name}} </a>
 <br>
 {% endfor %}
 

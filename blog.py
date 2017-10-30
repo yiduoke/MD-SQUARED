@@ -1,9 +1,17 @@
+#To Do:
+# Update changes.txt and design doc
+# Delete branches
+
 from flask import Flask, render_template, request, session, redirect, url_for, flash
 import sqlite3, os
 
 my_app = Flask(__name__)
 my_app.secret_key = os.urandom(32)
 
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#Beginning of database functions
+
+#Makes the 3 tables if this is the first time running the blog site
 def makeTables():
     db = sqlite3.connect("databases.db")
     c = db.cursor()
@@ -14,60 +22,50 @@ def makeTables():
     db.commit()
     db.close()
 
+#The function must be called for the tables to be made
 makeTables()
 
-def getUsernames():
+#Returns a dictionary of username:password pairs
+def getCredentials():
     db = sqlite3.connect("databases.db")
     c = db.cursor()
     c.execute("SELECT * FROM credentials;")
 
     bigList = c.fetchall()
-    usernames = {}
+    credentials = {}
     for smallList in bigList:
-        usernames[smallList[0]] = smallList[1]
+        credentials[smallList[0]] = smallList[1]
 
-    return usernames
-        
+    return credentials
+
+#Adds an account to the credentials and blogs tables if that account doesn't already exist, returns True if it worked, False if username is taken
 def addUser(username, password):
     db = sqlite3.connect("databases.db")
     c = db.cursor()
     
-    usernames = getUsernames()
+    credentials = getCredentials()
     
-    if (username in usernames):
-        return 0 #username already exists
+    if (username in credentials):
+        return False
     else:
         c.execute('INSERT INTO credentials VALUES(?, ?);', [username, password])
-        c.execute('select count(*) from credentials;')
-        c.execute('INSERT INTO blogs VALUES(?, ?);', [username, "%s's Blog" %(username)])
+        c.execute('INSERT INTO blogs VALUES(?, ?);', [username, "%s's Blog"%(username)])
         db.commit()
         db.close()
-        return 1 #successful signup
+        return True
 
-def checkLogin(username, password):
+#Adds a post to entries table
+def addEntry(username, entry):
     db = sqlite3.connect("databases.db")
     c = db.cursor()
 
-    usernames = getUsernames()
-    
-    if (username in usernames):
-        if (usernames[username] == password):
-            return 0; #everything correct
-        else:
-            return 1; #wrong password
-    else:
-        return 2; #wrong username
-
-def updateEntries(username, entry):
-    db = sqlite3.connect("databases.db")
-    c = db.cursor()
-
-    c.execute('INSERT INTO entries VALUES (?, ?);', [username, entry])#shouldn't just be insert -- we have to enable updating too (I think)
+    c.execute('INSERT INTO entries VALUES (?, ?);', [username, entry])
 
     db.commit()
     db.close()
 
-def editEntries(username, index, newEntry):
+#Updates specified entry with new content
+def editEntry(username, index, newEntry):
     db = sqlite3.connect("databases.db")
     c = db.cursor()
 
@@ -80,6 +78,7 @@ def editEntries(username, index, newEntry):
     db.commit()
     db.close()
 
+#Returns a dictionary of username:blog_name pairs
 def getBlogs():
     db = sqlite3.connect("databases.db")
     c = db.cursor()
@@ -92,6 +91,7 @@ def getBlogs():
 
     return blogs
 
+#Returns a list of all blog posts by a given user
 def getEntries(username):
     db = sqlite3.connect("databases.db")
     c = db.cursor()
@@ -104,6 +104,7 @@ def getEntries(username):
 
     return entries
 
+#Returns a list of sublists of usernames and blog entries that contain a given query
 def getMatches(query):
     db = sqlite3.connect("databases.db")
     c = db.cursor()
@@ -117,7 +118,10 @@ def getMatches(query):
 
     return matches
 
-#------------------------------------------------------------------------------------------------------------------------------------------
+#End of database functions
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+#Beginning of flask functions
+
 
 @my_app.route("/", methods = ['GET','POST'])
 def root():
@@ -126,71 +130,88 @@ def root():
     else:
         return render_template('home.html', username = "guest", loggedIn=False, blogs = getBlogs())
 
-@my_app.route("/login",methods = ['GET', 'POST'])
+
+@my_app.route("/login", methods = ['GET', 'POST'])
 def login():
     return render_template('login.html')
 
-@my_app.route("/auth", methods = ["GET","POST"])
-def auth():
-    error = checkLogin(request.form["username"], request.form["password"])
-    if (error == 0):# everything good
-        session["login"] = True
-        session["username"] = request.form["username"]
-        session["password"] = request.form["password"]
-        flash("yay you're in!")
-        return redirect(url_for('root'))
-    elif (error == 1):#wrong password
-        flash("wrong password")
-        return redirect(url_for('root'))
-    else:#wrong username
-        flash("wrong username")
-        return redirect(url_for('root'))
 
+@my_app.route("/authorize", methods = ["GET","POST"])
+def authorize():
+    credentials = getCredentials()
+
+    if(request.form["username"] in credentials):
+        if(credentials[request.form["username"]] == request.form["password"]):
+            session["username"] = request.form["username"]
+            session["password"] = request.form["password"]
+            flash("Login successful")
+            return redirect(url_for('root'))
+        else:
+            flash("wrong password")
+            return redirect(url_for('login'))
+    else:
+        flash("wrong username")
+        return redirect(url_for('login'))
+
+    
 @my_app.route("/signup", methods = ['GET','POST'])
 def signup():
     return render_template("newaccount.html")
 
+
 @my_app.route("/signedUp", methods = ["GET","POST"])
 def signedUp():
-    error = addUser(request.form["username"], request.form["password"])
-    if error == 0:
-        flash("username already exists")
-        return redirect(url_for("signup"))
-    else:
+    if(addUser(request.form["username"], request.form["password"])):
         flash("signup successful")
         return redirect(url_for("login"))
+    else:
+        flash("username already exists")
+        return redirect(url_for("signup"))
 
+    
 @my_app.route("/newEntry", methods = ['GET', 'POST'])
 def newPost():
-    updateEntries(session["username"], request.form["entry"])
+    addEntry(session["username"], request.form["entry"])
     return redirect(url_for("blog", username = session["username"]))
 
+
 @my_app.route("/editEntry<index>", methods = ['GET', 'POST'])
-def editEntry(index):
-    editEntries(session["username"], index, request.form["entry"])
+def edit(index):
+    editEntry(session["username"], index, request.form["entry"])
     return redirect(url_for("blog", username = session["username"]))
+
 
 @my_app.route("/logout", methods = ['GET', 'POST'])
 def logout():
-    session.clear() #removes all the session details
+    session.clear()
     return redirect(url_for("root"))
 
-#Fix this so you can't just enter /something in url and get a page
+
 @my_app.route("/<username>", methods = ['GET', 'POST'])
 def blog(username):
-    if ("username" in session and session["username"]==username):
-        ownBlog1=True;
+    if(username in getCredentials()):
+        return render_template("blog_template.html", username = username, entries = getEntries(username), ownBlog = ("username" in session and session["username"] == username), loggedIn = session.has_key("username"))
     else:
-        ownBlog1=False;
-    return render_template("blog_template.html", username = username, entries = getEntries(username),ownBlog=ownBlog1)
+        return redirect(url_for("error"))
 
+    
 @my_app.route("/search", methods = ['GET', 'POST'])
 def searchpage():
-    if ("username" in session):
-        return render_template('home.html', username = session["username"], loggedIn = True, blogs = getBlogs(), searchResults = getMatches(request.form["query"]))
+    if(request.form.has_key("query")):
+        if ("username" in session):
+            return render_template('home.html', username = session["username"], loggedIn = True, blogs = getBlogs(), searchResults = getMatches(request.form["query"]))
+        else:
+            return render_template('home.html', username = "guest", loggedIn=False, blogs = getBlogs(), searchResults = getMatches(request.form["query"]))
     else:
-        return render_template('home.html', username = "guest", loggedIn=False, blogs = getBlogs(), searchResults = getMatches(request.form["query"]))
+        return redirect(url_for("error"))
     
+
+    
+@my_app.route("/error", methods = ["GET", "POST"])
+def error():
+    return render_template("error.html")
+
+
 if __name__ == '__main__':
     my_app.debug = True
     my_app.run()

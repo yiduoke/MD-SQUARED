@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block title %} Error {% endblock %}
+
+{% block body %}
+
+<div style="font-weight:bold" align = "center">
+  {% set messages = get_flashed_messages() %}
+  {% for message in messages %}
+  {{message}}
+  {% endfor %}
+  <br>
+</div>
+
+<br>
+
+<div align = "center">
+  <h1> You shouldn't be here </h1>
+
+  Stop trying to break our code. We're just trying to get a good grade.
+  <br>
+  <br>
+  
+  <div align = "center">
+    <form method="POST" action = "/">
+      <input type = "submit" value = "Home">
+    </form>
+  </div>
+
+</div>
+
+{% endblock %}
