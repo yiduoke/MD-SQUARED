@@ -104,6 +104,19 @@ def getEntries(username):
 
     return entries
 
+def getMatches(query):
+    db = sqlite3.connect("databases.db")
+    c = db.cursor()
+    c.execute("SELECT * FROM entries;")
+
+    bigList = c.fetchall()
+    matches = []
+    for smallList in bigList:
+        if(smallList[1].find(query) != -1):
+            matches.append(smallList)
+
+    return matches
+
 #------------------------------------------------------------------------------------------------------------------------------------------
 
 @my_app.route("/", methods = ['GET','POST'])
@@ -147,10 +160,6 @@ def signedUp():
         flash("signup successful")
         return redirect(url_for("login"))
 
-@my_app.route("/search",methods = ['GET', 'POST'])
-def search():
-    pass
-
 @my_app.route("/newEntry", methods = ['GET', 'POST'])
 def newPost():
     updateEntries(session["username"], request.form["entry"])
@@ -175,6 +184,13 @@ def blog(username):
         ownBlog1=False;
     return render_template("blog_template.html", username = username, entries = getEntries(username),ownBlog=ownBlog1)
 
+@my_app.route("/search", methods = ['GET', 'POST'])
+def searchpage():
+    if ("username" in session):
+        return render_template('home.html', username = session["username"], loggedIn = True, blogs = getBlogs(), searchResults = getMatches(request.form["query"]))
+    else:
+        return render_template('home.html', username = "guest", loggedIn=False, blogs = getBlogs(), searchResults = getMatches(request.form["query"]))
+    
 if __name__ == '__main__':
     my_app.debug = True
     my_app.run()

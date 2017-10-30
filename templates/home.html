@@ -5,8 +5,8 @@
 {% set messages=get_flashed_messages() %}
 {% for message in messages %}
 {{message}}
-<br>
 {% endfor %}
+<br>
 
 {% if loggedIn %}
 Welcome {{username}}
@@ -25,12 +25,17 @@ Welcome {{username}}
 </form>
 {% endif %}
 
-<form method="POST" action = "/search">
+<form method = "POST" action = "/search">
   Search:
-  <input type = "text" name="search">
-  <input type = "submit" value = "search"> 
+  <input type = "text" name="query">
+  <input type = "submit" value = "Submit"> 
   <br>
 </form>
+
+{% for result in searchResults %}
+<a href="{{result[0]}}">{{result[0]}}: {{result[1]}}</a>
+<br>
+{% endfor %}
 
 All Blogs:
 <br>

@@ -39,3 +39,6 @@ updated html files to show blogs correctly based on the logged in account, shows
 
 mdA -- 10-29-17 17:40
 finished editing entries feature; cleaned up code
+
+mdA -- 10-30-17 02:34
+finished search function and results displaying
